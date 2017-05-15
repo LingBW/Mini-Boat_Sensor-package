@@ -41,10 +41,10 @@ def read_temp():
         try:
             lines = read_temp_raw(device_file)
         except:
-            dic_dates[key] = 0
+            dic_dates[key] = 0  # 1
             continue
         if lines[0].strip()[-3:] != 'YES':
-            dic_dates[key] = 0
+            dic_dates[key] = 0  # 2
             continue
         equals_pos = lines[1].find('t=')
         if equals_pos != -1:
@@ -54,7 +54,7 @@ def read_temp():
             if temp_c>0 and temp_c<100:
                 dic_dates[key] = temp_c*10
             else :
-                dic_dates[key] = 0
+                dic_dates[key] = 0  # 3
     
     return dic_dates #, temp_f #return a list of each temperature-sensor value.
 
@@ -90,20 +90,16 @@ kp = 0 # Halt Pi
 time.sleep(3)	
 sendtime = datetime.datetime.now()
 while True:
-    looptime = datetime.datetime.now()
     cs = read_temp()
-    #print looptime,cs
-    
     # Loops for no temp-sensors.
     if not cs:
-        time.sleep(0.2)
-        print ki
         if ki == 100:
-            nmes = '00000'
+            nmes = '0000000000000000000'
             transdata(nmes)
             ki = 0
             time.sleep(3600)
-        ki = ki+1
+        ki = ki+1; print ki
+        time.sleep(1)
         continue
     
     #for j in range(len(cs)):
@@ -113,15 +109,17 @@ while True:
             cdatas[j].append(cs[j])
         else:
             cdatas[j] = [cs[j]]
-            
+    #
+    looptime = datetime.datetime.now()        
     if (looptime-sendtime).total_seconds() >= send_interval:
         sendtime = datetime.datetime.now()
         mes = ''
         #print cdatas
         for b in cdatas:
             cl = cdatas[b]
-            if 0 in cl:
-                mes3 = '111111111'#'''
+            #if 0 in cl:
+            if cl == 0:
+                mes3 = '000000000' #'''
             else:
                 mes0 = numpy.mean(cl)
                 mes1 = numpy.min(cl)
