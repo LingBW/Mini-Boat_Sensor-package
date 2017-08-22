@@ -58,5 +58,8 @@ sendtime = datetime.datetime.now()
 while True:
     cs = read_temp()
     # Loops for no temp-sensors.
-    print cs
+    if not cs :
+        print "No sensors detected!"
+    else:
+        print cs
     time.sleep(1)
