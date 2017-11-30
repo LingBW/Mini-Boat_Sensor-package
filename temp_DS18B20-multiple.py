@@ -11,9 +11,11 @@ import datetime
  
 # Hard codes
 transmit = 'ON' # ON,OFF
-send_interval = 7100 # unit: seconds. eg 2*3600
-temp_inter = 58 #collect data interval, every minute
-sd_num = 3 #send data times
+#save_raw_data = 'OFF' # ON,OFF
+send_interval = 360 # unit: seconds. eg 2*3600
+temp_inter = 59 #collect data interval, every minute
+sd_num = 1 #send data times
+sensor_num = 2 # Quatity of temperature sensors
 
 #cdatas = [[],[],[],[],[]] #celcius degree lists
 cdatas = {}
@@ -29,32 +31,36 @@ def read_temp_raw(device_file):
     return lines
  
 def read_temp():
+    # Three cases for return: 1 none; 2 {}; 3 good data.
+    os.system('sudo modprobe w1-gpio')
+    os.system('sudo modprobe w1-therm')
+    
     dic_dates = {}
     device_folder = glob.glob('/sys/bus/w1/devices/28*')
     # If no such files, return None, and , send message '00000'
     if not device_folder:
-        return None
+        return None #Temperature connection problem. Can't find data file.
     
-    for i in device_folder:
-        key = i[-12:]
-        device_file = i + '/w1_slave'
+    for i in range(len(device_folder)):
+        key = str(i+1)
+        device_file = device_folder[i] + '/w1_slave'
         try:
             lines = read_temp_raw(device_file)
         except:
-            dic_dates[key] = 0  # 1
+            #dic_dates[key] = -1000  # 1 bad data
             continue
         if lines[0].strip()[-3:] != 'YES':
-            dic_dates[key] = 0  # 2
+            #dic_dates[key] = -1000  # 2 bad data
             continue
         equals_pos = lines[1].find('t=')
         if equals_pos != -1:
             temp_string = lines[1][equals_pos+2:]
             temp_c = float(temp_string) / 1000.0 + 30  # avoid negative value.
             #temp_f = temp_c * 9.0 / 5.0 + 32.0
-            if temp_c>0 and temp_c<100:
+            if temp_c>0 and temp_c<100:  #Between -30 and 70 C
                 dic_dates[key] = temp_c*10
-            else :
-                dic_dates[key] = 0  # 3
+            #else :
+                #dic_dates[key] = -1000  # 3 bad data
     
     return dic_dates #, temp_f #return a list of each temperature-sensor value.
 
@@ -97,13 +103,13 @@ while True:
             nmes = '0000000000000000000'
             transdata(nmes)
             ki = 0
-            time.sleep(3600)
+            time.sleep(200)
+            os.system('sudo halt')
         ki = ki+1; print ki
         time.sleep(1)
         continue
     
-    #for j in range(len(cs)):
-        #cdatas[j].append(cs.values()[j])
+    # If read data ,continue,,
     for j in cs:
         if j in cdatas:
             cdatas[j].append(cs[j])
@@ -115,10 +121,10 @@ while True:
         sendtime = datetime.datetime.now()
         mes = ''
         #print cdatas
-        for b in cdatas:
-            cl = cdatas[b]
-            #if 0 in cl:
-            if cl == 0:
+        for b in range(sensor_num): # the number of sensors
+            try:
+                cl = cdatas[str(b+1)]
+            except:
                 mes3 = '000000000' #'''
             else:
                 mes0 = numpy.mean(cl)
@@ -133,5 +139,6 @@ while True:
             transdata(mes)
         kp = kp+1
     if kp == sd_num:
+        time.sleep(20)
         os.system('sudo halt')
     time.sleep(temp_inter)
