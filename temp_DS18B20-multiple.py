@@ -12,9 +12,9 @@ import datetime
 # Hard codes
 transmit = 'ON' # ON,OFF
 #save_raw_data = 'OFF' # ON,OFF
-send_interval = 360 # unit: seconds. eg 2*3600
-temp_inter = 59 #collect data interval, every minute
-sd_num = 1 #send data times
+send_interval = 600 # unit: seconds. eg 2*3600
+temp_inter = 10 #collect data interval, every minute
+sd_num = 2 #send data times
 sensor_num = 2 # Quatity of temperature sensors
 
 #cdatas = [[],[],[],[],[]] #celcius degree lists
@@ -32,8 +32,8 @@ def read_temp_raw(device_file):
  
 def read_temp():
     # Three cases for return: 1 none; 2 {}; 3 good data.
-    os.system('sudo modprobe w1-gpio')
-    os.system('sudo modprobe w1-therm')
+    #os.system('sudo modprobe w1-gpio')
+    #os.system('sudo modprobe w1-therm')
     
     dic_dates = {}
     device_folder = glob.glob('/sys/bus/w1/devices/28*')
@@ -110,6 +110,7 @@ while True:
         continue
     
     # If read data ,continue,,
+    print cs
     for j in cs:
         if j in cdatas:
             cdatas[j].append(cs[j])
