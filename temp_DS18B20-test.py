@@ -23,8 +23,8 @@ def read_temp_raw(device_file):
     return lines
  
 def read_temp():
-    os.system('sudo modprobe w1-gpio')
-    os.system('sudo modprobe w1-therm')
+    #os.system('sudo modprobe w1-gpio')
+    #os.system('sudo modprobe w1-therm')
     dic_dates = {}
     device_folder = glob.glob('/sys/bus/w1/devices/28*')
     # If no such files, return None, and , send message '00000'
