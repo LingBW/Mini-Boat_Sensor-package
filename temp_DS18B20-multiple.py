@@ -12,9 +12,9 @@ import datetime
 # Hard codes
 transmit = 'ON' # ON,OFF
 #save_raw_data = 'OFF' # ON,OFF
-send_interval = 600 # unit: seconds. eg 2*3600
+send_interval = 300 # unit: seconds. eg 2*3600
 temp_inter = 10 #collect data interval, every minute
-sd_num = 2 #send data times
+sd_num = 1 #send data times
 sensor_num = 2 # Quatity of temperature sensors
 
 #cdatas = [[],[],[],[],[]] #celcius degree lists
@@ -103,7 +103,7 @@ while True:
             nmes = '0000000000000000000'
             transdata(nmes)
             ki = 0
-            time.sleep(200)
+            time.sleep(20)
             os.system('sudo halt')
         ki = ki+1; print ki
         time.sleep(1)
